@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth's Magnetic Field Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>Earth's Magnetic Field Simulator</h1>
+        <button class="info-trigger" onclick="toggleInfoBox()">
+            <i class="fas fa-info-circle"></i>
+        </button>
+    </div>
+    
+    <!-- Add the info box content here -->
+    {% include 'info_box.html' %}
+    
+    <div id="container">
+        <div id="scene-container">
+            <div class="zoom-controls">
+                <button id="zoom-in"><i class="fas fa-plus"></i></button>
+                <button id="zoom-out"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="panel controls-panel">
+                <h2>Navigation Controls</h2>
+                <div class="control-group">
+                    <label for="latitude">Latitude: <span id="lat-value">0°</span></label>
+                    <input type="range" id="latitude" min="-90" max="90" value="0">
+                </div>
+                <div class="control-group">
+                    <label for="longitude">Longitude: <span id="lon-value">0°</span></label>
+                    <input type="range" id="longitude" min="-180" max="180" value="0">
+                </div>
+            </div>
+            
+            <!-- Inside the compass-panel div -->
+            <div class="compass-panel">
+                <h2>3D Compass</h2>
+                <div class="compass-container">
+                    <div id="compass"></div>
+                    <div class="compass-labels">
+                        <span class="compass-label north">N</span>
+                        <span class="compass-label south">S</span>
+                        <span class="compass-label east">E</span>
+                        <span class="compass-label west">W</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel data-panel">
+                <h2>Magnetic Data</h2>
+                <div class="data-grid">
+                    <div class="data-item">
+                        <i class="fas fa-compass"></i>
+                        <span>Declination: <span id="declination">0°</span></span>
+                    </div>
+                    <div class="data-item">
+                        <i class="fas fa-angle-double-down"></i>
+                        <span>Inclination: <span id="inclination">0°</span></span>
+                    </div>
+                    <div class="data-item">
+                        <i class="fas fa-magnet"></i>
+                        <span>Field Strength: <span id="intensity">0 nT</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="{{ url_for('static', filename='js/compass3d.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/info_box.js') }}"></script>
+</body>
+</html>
