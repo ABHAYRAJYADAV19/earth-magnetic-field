@@ -140,17 +140,49 @@ function init() {
     animate();
 }
 
+let earthRotation = { x: 0, y: 0 }; // User-controlled rotation
+let autoRotationY = 0; // Auto-rotation around Y-axis
+
+// Listen for arrow key presses to rotate the Earth
+document.addEventListener('keydown', (event) => {
+    const step = 0.05;
+    switch (event.key) {
+        case 'ArrowLeft':
+            earthRotation.y -= step;
+            break;
+        case 'ArrowRight':
+            earthRotation.y += step;
+            break;
+        case 'ArrowUp':
+            earthRotation.x -= step;
+            break;
+        case 'ArrowDown':
+            earthRotation.x += step;
+            break;
+        default:
+            return;
+    }
+});
+
+// Update animate function to use both auto and user rotation
 function animate() {
     requestAnimationFrame(animate);
-    earth.rotation.y += 0.001;
-    
+
+    // Continuous auto-rotation on Y-axis
+    autoRotationY += 0.01;
+
+    // Combine auto-rotation and user rotation
+    earth.rotation.y = autoRotationY + earthRotation.y;
+    earth.rotation.x = earthRotation.x;
+
     // Rotate field lines with Earth
     if (fieldLines) {
         fieldLines.forEach(line => {
             line.rotation.y = earth.rotation.y;
+            line.rotation.x = earth.rotation.x;
         });
     }
-    
+
     renderer.render(scene, camera);
 }
 
@@ -178,6 +210,55 @@ window.addEventListener('resize', () => {
 });
 
 // Control listeners
+let latitudeLine, longitudeLine;
+
+// Function to create a latitude line at a given angle
+function createLatitudeLine(latAngle) {
+    if (latitudeLine) scene.remove(latitudeLine);
+
+    const points = [];
+    const radius = 5.01; // Slightly above the sphere surface
+    const segments = 128;
+    const latRad = (latAngle * Math.PI) / 180;
+
+    for (let i = 0; i <= segments; i++) {
+        const lon = (i / segments) * 2 * Math.PI;
+        const x = radius * Math.cos(latRad) * Math.cos(lon);
+        const y = radius * Math.sin(latRad);
+        const z = radius * Math.cos(latRad) * Math.sin(lon);
+        points.push(new THREE.Vector3(x, y, z));
+    }
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0xff8800, linewidth: 3 });
+    latitudeLine = new THREE.Line(geometry, material);
+    scene.add(latitudeLine);
+}
+
+// Function to create a longitude line at a given angle
+function createLongitudeLine(lonAngle) {
+    if (longitudeLine) scene.remove(longitudeLine);
+
+    const points = [];
+    const radius = 5.01;
+    const segments = 128;
+    const lonRad = (lonAngle * Math.PI) / 180;
+
+    for (let i = 0; i <= segments; i++) {
+        const lat = (-Math.PI / 2) + (i / segments) * Math.PI;
+        const x = radius * Math.cos(lat) * Math.cos(lonRad);
+        const y = radius * Math.sin(lat);
+        const z = radius * Math.cos(lat) * Math.sin(lonRad);
+        points.push(new THREE.Vector3(x, y, z));
+    }
+
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const material = new THREE.LineBasicMaterial({ color: 0x00ccff, linewidth: 3 });
+    longitudeLine = new THREE.Line(geometry, material);
+    scene.add(longitudeLine);
+}
+
+// Update the field lines and also update the highlighted latitude/longitude lines
 function updateFieldLines(latitude, longitude) {
     if (fieldLines) {
         // Update field line rotation based on latitude and longitude
@@ -186,6 +267,8 @@ function updateFieldLines(latitude, longitude) {
             line.rotation.y = (longitude * Math.PI) / 180;
         });
     }
+    createLatitudeLine(Number(latitude));
+    createLongitudeLine(Number(longitude));
 }
 
 // Update the existing event listeners

@@ -32,7 +32,7 @@ class EarthRenderer:
         gluLookAt(0, 0, 15, 0, 0, 0, 0, 1, 0)
         
         # Rotate earth
-        glRotatef(self.rotation, 0, 1, 0)
+        glRotatef(self.rotation, 0, 0, 1)
         
         # Draw sphere for Earth
         sphere = gluNewQuadric()
